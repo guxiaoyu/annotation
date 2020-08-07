@@ -1,0 +1,2 @@
+include ':app', ':plugin', ':router-annotation', ':router-compiler'
+rootProject.name='My Application'
