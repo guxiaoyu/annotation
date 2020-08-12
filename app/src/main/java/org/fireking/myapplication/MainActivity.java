@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import org.fireking.routerlibrary.annotation.Router;
 
-@Router(path = "main/main01")
+@Router(path = "/main/main01")
 public class MainActivity extends AppCompatActivity {
 
     TextView tv_button;

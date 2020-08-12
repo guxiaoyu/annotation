@@ -15,6 +15,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.checkerframework.checker.units.qual.A;
 import org.fireking.processorlib.entity.RouteDoc;
+import org.fireking.processorlib.utils.Logger;
 import org.fireking.processorlib.utils.StringUtils;
 import org.fireking.processorlib.utils.TypeUtils;
 import org.fireking.routerlibrary.annotation.Autowired;
@@ -53,6 +54,7 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.StandardLocation;
 
+
 import static org.fireking.processorlib.utils.Constans.ACTIVITY;
 import static org.fireking.processorlib.utils.Constans.ANNOTATION_TYPE_AUTOWIRED;
 import static org.fireking.processorlib.utils.Constans.ANNOTATION_TYPE_ROUTE;
@@ -78,6 +80,7 @@ import static org.fireking.processorlib.utils.Constans.WARNING_TIPS;
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({ANNOTATION_TYPE_ROUTE, ANNOTATION_TYPE_AUTOWIRED})
 public class RouterProcessor extends AbstractProcessor {
+    Logger logger;
 
     private Types types;
     private Elements elementUtils;
@@ -86,7 +89,7 @@ public class RouterProcessor extends AbstractProcessor {
     private Map<String, Set<RouteMeta>> groupMap = new HashMap<>();
 
     private Messager mMessager;//打印错误信息
-    private TypeMirror iProvider;
+//    private TypeMirror iProvider;
     private TypeUtils typeUtils ;
     private Filer mFiler;
     private String moduleName=null;
@@ -99,6 +102,7 @@ public class RouterProcessor extends AbstractProcessor {
 
         mMessager = processingEnvironment.getMessager();
         mMessager.printMessage(Diagnostic.Kind.WARNING,"==========init");
+        logger = new Logger(mMessager);
 
         types = processingEnvironment.getTypeUtils();
         elementUtils = processingEnvironment.getElementUtils();
@@ -122,6 +126,8 @@ public class RouterProcessor extends AbstractProcessor {
                 ).openWriter();
             }catch (IOException e){
                 e.printStackTrace();
+                logger.error("Create doc writer failed, because " + e.getMessage());
+
             }
         }
     }
@@ -134,6 +140,7 @@ public class RouterProcessor extends AbstractProcessor {
             try{
                 parseRoutes(rootElements);
             }catch (Exception e){
+                e.printStackTrace();
                 mMessager.printMessage(Diagnostic.Kind.WARNING,"==========process:"+e.getMessage());
             }
             return true;
@@ -143,6 +150,8 @@ public class RouterProcessor extends AbstractProcessor {
 
     private void parseRoutes(Set<? extends Element> routeElements) throws IOException{
         if (routeElements!=null && routeElements.size()>0) {
+            logger.info(">>> Found routes, size is " + routeElements.size() + " <<<");
+
             rootMap.clear();
 
             TypeMirror type_Activity = elementUtils.getTypeElement(ACTIVITY).asType();
@@ -157,14 +166,14 @@ public class RouterProcessor extends AbstractProcessor {
             ClassName routeMetaCn = ClassName.get(RouteMeta.class);
             ClassName routeTypeCn = ClassName.get(RouteType.class);
 
-            ParameterizedTypeName inputMapTypeOfRoot = ParameterizedTypeName.get(
-                    ClassName.get(Map.class),
-                    ClassName.get(String.class),
-                    ParameterizedTypeName.get(
-                            ClassName.get(Class.class),
-                            WildcardTypeName.subtypeOf(ClassName.get(type_IRouterGroup))
-                    )
-            );
+//            ParameterizedTypeName inputMapTypeOfRoot = ParameterizedTypeName.get(
+//                    ClassName.get(Map.class),
+//                    ClassName.get(String.class),
+//                    ParameterizedTypeName.get(
+//                            ClassName.get(Class.class),
+//                            WildcardTypeName.subtypeOf(ClassName.get(type_IRouterGroup))
+//                    )
+//            );
 
 
             ParameterizedTypeName inputMapTypeOfGroup = ParameterizedTypeName.get(
@@ -183,7 +192,7 @@ public class RouterProcessor extends AbstractProcessor {
                     Map<String,Integer> paramsType = new HashMap<>();
                     Map<String, Autowired> injectConfig = new HashMap<>();
                     for (Element field:element.getEnclosedElements()){
-                        if (field.getKind().isField() && field.getAnnotation(Autowired.class)!=null && !types.isSubtype(field.asType(),iProvider)){
+                        if (field.getKind().isField() && field.getAnnotation(Autowired.class)!=null /*&& !types.isSubtype(field.asType(),iProvider)*/){
                             Autowired paramConfig = field.getAnnotation(Autowired.class);
                             String injectName = StringUtils.isEmpty(paramConfig.name()) ? field.getSimpleName().toString() :paramConfig.name();
                             paramsType.put(injectName,typeUtils.typeExchange(field));
@@ -199,35 +208,37 @@ public class RouterProcessor extends AbstractProcessor {
                     }
 
                     routeMeta.setInjectConfig(injectConfig);
-                }else if (types.isSubtype(tm,iProvider)){
+                }/*else if (types.isSubtype(tm,iProvider)){
                     routeMeta = new RouteMeta(router,element,RouteType.PROVIDER,null);
                 }else if (types.isSubtype(tm,type_Service)){
                     routeMeta = new RouteMeta(router, element, RouteType.parse(SERVICE), null);
-                }
+                }*/
 
 
 
                 categories(routeMeta);
             }
-            ParameterSpec rootParamSpec = ParameterSpec.builder(inputMapTypeOfRoot,"routes").build();
+//            ParameterSpec rootParamSpec = ParameterSpec.builder(inputMapTypeOfRoot,"routes").build();
 
             ParameterSpec groupParamSpec = ParameterSpec.builder(inputMapTypeOfGroup,"atlas").build();
             ParameterSpec providerParamSpec = ParameterSpec.builder(inputMapTypeOfGroup, "providers").build();  // Ps. its param type same as groupParamSpec!
 
-
-            MethodSpec.Builder loadIntoMethodOfRootBuilder = MethodSpec.methodBuilder(METHOD_LOAD_INTO)
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(rootParamSpec);
-
-            MethodSpec.Builder loadIntoMethodOfProviderBuilder = MethodSpec.methodBuilder(METHOD_LOAD_INTO)
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(providerParamSpec);
+//
+//            MethodSpec.Builder loadIntoMethodOfRootBuilder = MethodSpec.methodBuilder(METHOD_LOAD_INTO)
+//                    .addAnnotation(Override.class)
+//                    .addModifiers(Modifier.PUBLIC)
+//                    .addParameter(rootParamSpec);
+//
+//            MethodSpec.Builder loadIntoMethodOfProviderBuilder = MethodSpec.methodBuilder(METHOD_LOAD_INTO)
+//                    .addAnnotation(Override.class)
+//                    .addModifiers(Modifier.PUBLIC)
+//                    .addParameter(providerParamSpec);
 
             Map<String, List<RouteDoc>> docSource = new HashMap<>();
 
             for (Map.Entry<String,Set<RouteMeta>> entry:groupMap.entrySet()){
+                logger.info(">>> Found routes, groupMap size is " + groupMap.size() + " <<<");
+
                 String groupName = entry.getKey();
 
                 MethodSpec.Builder loadIntoMethodOfGroupBuilder = MethodSpec.methodBuilder(METHOD_LOAD_INTO)
@@ -240,39 +251,39 @@ public class RouterProcessor extends AbstractProcessor {
                 for (RouteMeta routeMeta:groupData){
                     RouteDoc routeDoc = extractDocInfo(routeMeta);
                     ClassName className = ClassName.get((TypeElement) routeMeta.getRawType());
-                    switch (routeMeta.getType()){
-                        case PROVIDER:
-                            List<? extends TypeMirror> interfaces = ((TypeElement) routeMeta.getRawType()).getInterfaces();
-
-                            for (TypeMirror tm:interfaces){
-                                if (types.isSameType(tm,iProvider)){
-
-                                    loadIntoMethodOfProviderBuilder.addStatement(
-                                            "providers.put($S,$T.build($T."+routeMeta.getType() +",$T.class,$S,$S,null))",
-                                            (routeMeta.getRawType()).toString(),
-                                            routeMetaCn,
-                                            routeTypeCn,
-                                            className,
-                                            routeMeta.getPath(),
-                                            routeMeta.getGroup()
-                                    );
-                                }else if (types.isSubtype(tm,iProvider)){
-                                    loadIntoMethodOfProviderBuilder.addStatement(
-                                            "providers.put($S,$T.build($T."+routeMeta.getType() +",$T.class,$S,$S,null))",
-                                            tm.toString(),
-                                            routeMetaCn,
-                                            routeTypeCn,
-                                            className,
-                                            routeMeta.getPath(),
-                                            routeMeta.getGroup()
-                                    );
-                                }
-                            }
-                                break;
-                            default:
-                                break;
-
-                    }
+//                    switch (routeMeta.getType()){
+//                        case PROVIDER:
+//                            List<? extends TypeMirror> interfaces = ((TypeElement) routeMeta.getRawType()).getInterfaces();
+//
+//                            for (TypeMirror tm:interfaces){
+//                                if (types.isSameType(tm,iProvider)){
+//
+//                                    loadIntoMethodOfProviderBuilder.addStatement(
+//                                            "providers.put($S,$T.build($T."+routeMeta.getType() +",$T.class,$S,$S,null))",
+//                                            (routeMeta.getRawType()).toString(),
+//                                            routeMetaCn,
+//                                            routeTypeCn,
+//                                            className,
+//                                            routeMeta.getPath(),
+//                                            routeMeta.getGroup()
+//                                    );
+//                                }else if (types.isSubtype(tm,iProvider)){
+//                                    loadIntoMethodOfProviderBuilder.addStatement(
+//                                            "providers.put($S,$T.build($T."+routeMeta.getType() +",$T.class,$S,$S,null))",
+//                                            tm.toString(),
+//                                            routeMetaCn,
+//                                            routeTypeCn,
+//                                            className,
+//                                            routeMeta.getPath(),
+//                                            routeMeta.getGroup()
+//                                    );
+//                                }
+//                            }
+//                                break;
+//                            default:
+//                                break;
+//
+//                    }
 
                     StringBuilder mapBodyBuilder = new StringBuilder();
                     Map<String,Integer> paramsType = routeMeta.getParamsType();
@@ -315,27 +326,27 @@ public class RouterProcessor extends AbstractProcessor {
 
                 }
 
-                String groupFileName = NAME_OF_GROUP + groupName;
-                JavaFile.builder(
-                        PACKAGE_OF_GENERATE_FILE,
-                        TypeSpec.classBuilder(groupFileName)
-                                .addJavadoc(WARNING_TIPS)
-                                .addSuperinterface(ClassName.get(type_IRouterGroup))
-                                .addModifiers(Modifier.PUBLIC)
-                                .addMethod(loadIntoMethodOfGroupBuilder.build())
-                                .build()
+//                String groupFileName = NAME_OF_GROUP + groupName;
+//                JavaFile.builder(
+//                        PACKAGE_OF_GENERATE_FILE,
+//                        TypeSpec.classBuilder(groupFileName)
+//                                .addJavadoc(WARNING_TIPS)
+//                                .addSuperinterface(ClassName.get(type_IRouterGroup))
+//                                .addModifiers(Modifier.PUBLIC)
+//                                .addMethod(loadIntoMethodOfGroupBuilder.build())
+//                                .build()
+//
+//                ).build().writeTo(mFiler);
 
-                ).build().writeTo(mFiler);
-
-                rootMap.put(groupName,groupFileName);
+//                rootMap.put(groupName,groupFileName);
                 docSource.put(groupName,routeDocList);
             }
 
-            if (MapUtils.isNotEmpty(rootMap)){
-                for (Map.Entry<String,String> entry:rootMap.entrySet()){
-                    loadIntoMethodOfRootBuilder.addStatement("routes.put($S,$T.class)",entry.getKey(),ClassName.get(PACKAGE_OF_GENERATE_FILE,entry.getValue()));
-                }
-            }
+//            if (MapUtils.isNotEmpty(rootMap)){
+//                for (Map.Entry<String,String> entry:rootMap.entrySet()){
+//                    loadIntoMethodOfRootBuilder.addStatement("routes.put($S,$T.class)",entry.getKey(),ClassName.get(PACKAGE_OF_GENERATE_FILE,entry.getValue()));
+//                }
+//            }
 
             if (generateDoc){
                 docWriter.append(JSON.toJSONString(docSource, SerializerFeature.PrettyFormat));
@@ -343,23 +354,23 @@ public class RouterProcessor extends AbstractProcessor {
                 docWriter.close();
             }
 
-            String providerMapFileNAme = NAME_OF_PROVIDER + SEPARATOR + moduleName;
-            JavaFile.builder(PACKAGE_OF_GENERATE_FILE,
-                    TypeSpec.classBuilder(providerMapFileNAme)
-                            .addJavadoc(WARNING_TIPS)
-                            .addSuperinterface(ClassName.get(type_IProviderGroup))
-                            .addModifiers(Modifier.PUBLIC)
-                            .addMethod(loadIntoMethodOfProviderBuilder.build())
-                            .build()
-            ).build().writeTo(mFiler);
+//            String providerMapFileNAme = NAME_OF_PROVIDER + SEPARATOR + moduleName;
+//            JavaFile.builder(PACKAGE_OF_GENERATE_FILE,
+//                    TypeSpec.classBuilder(providerMapFileNAme)
+//                            .addJavadoc(WARNING_TIPS)
+//                            .addSuperinterface(ClassName.get(type_IProviderGroup))
+//                            .addModifiers(Modifier.PUBLIC)
+//                            .addMethod(loadIntoMethodOfProviderBuilder.build())
+//                            .build()
+//            ).build().writeTo(mFiler);
 
-            String rootFileName = NAME_OF_ROOT + SEPARATOR +moduleName;
-            JavaFile.builder(PACKAGE_OF_GENERATE_FILE,
-                    TypeSpec.classBuilder(rootFileName)
-                            .addJavadoc(WARNING_TIPS)
-                            .addSuperinterface(ClassName.get(elementUtils.getTypeElement(ITROUTE_ROOT)))
-                            .build()
-            ).build().writeTo(mFiler);
+//            String rootFileName = NAME_OF_ROOT + SEPARATOR +moduleName;
+//            JavaFile.builder(PACKAGE_OF_GENERATE_FILE,
+//                    TypeSpec.classBuilder(rootFileName)
+//                            .addJavadoc(WARNING_TIPS)
+//                            .addSuperinterface(ClassName.get(elementUtils.getTypeElement(ITROUTE_ROOT)))
+//                            .build()
+//            ).build().writeTo(mFiler);
 
         }
 
@@ -391,6 +402,7 @@ public class RouterProcessor extends AbstractProcessor {
 
     private void categories(RouteMeta routeMeta){
         if (routeVerify(routeMeta)){
+
             Set<RouteMeta> routeMetas = groupMap.get(routeMeta.getGroup());
             if (CollectionUtils.isEmpty(routeMetas)){
                 Set<RouteMeta> routeMetaSet = new TreeSet<>(new Comparator<RouteMeta>() {
@@ -400,6 +412,8 @@ public class RouterProcessor extends AbstractProcessor {
                             return routeMeta.getPath().compareTo(t1.getPath());
                         }catch (Exception e) {
                             e.printStackTrace();
+                            logger.error(e.getMessage());
+
                             return 0;
                         }
                     }
@@ -410,6 +424,8 @@ public class RouterProcessor extends AbstractProcessor {
             }else {
                 routeMetas.add(routeMeta);
             }
+        }else {
+            logger.warning(">>> Route meta verify error, group is " + routeMeta.getGroup() + " <<<");
         }
     }
 
@@ -431,6 +447,8 @@ public class RouterProcessor extends AbstractProcessor {
                 return true;
             }catch (Exception e){
                 e.printStackTrace();
+                logger.error("Failed to extract default group! " + e.getMessage());
+
                 return false;
             }
 

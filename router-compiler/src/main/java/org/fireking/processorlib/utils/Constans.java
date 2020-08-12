@@ -43,16 +43,17 @@ public class Constans {
 
 
 
+    static final String PREFIX_OF_LOGGER = PROJECT + "::Compiler ";
 
 
 
 
-    private static final String FACADE_PACKAGE = "org.fireking.processorlib";
+    private static final String FACADE_PACKAGE = "org.fireking.routerlibrary";
     private static final String TEMPLATE_PACKAGE = ".template";
 
     // Annotation type
     public static final String ANNOTATION_TYPE_INTECEPTOR = FACADE_PACKAGE + ".annotation.Interceptor";
-    public static final String ANNOTATION_TYPE_ROUTE = FACADE_PACKAGE + ".annotation.Route";
+    public static final String ANNOTATION_TYPE_ROUTE = FACADE_PACKAGE + ".annotation.Router";
     public static final String ANNOTATION_TYPE_AUTOWIRED = FACADE_PACKAGE + ".annotation.Autowired";
 
     public static final String IPROVIDER = FACADE_PACKAGE + TEMPLATE_PACKAGE + ".IProvider";
