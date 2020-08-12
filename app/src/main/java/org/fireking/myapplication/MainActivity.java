@@ -2,11 +2,14 @@ package org.fireking.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import org.fireking.routerlibrary.annotation.Router;
 
+@Router(path = "main/main01")
 public class MainActivity extends AppCompatActivity {
 
     TextView tv_button;
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 //                intent.setComponent(new ComponentName("org.fireking.myapplication","org.fireking.myapplication.SeconedActivity"));
 //                startActivity(intent);
 
+                startActivity(new Intent(MainActivity.this,SeconedActivity.class));
             }
         });
     }

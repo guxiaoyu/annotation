@@ -1,4 +1,4 @@
-package org.fireking.routerlibrary;
+package org.fireking.routerlibrary.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,14 +10,14 @@ import java.lang.annotation.Target;
 public @interface Router {
 
     /**
-     * 路由地址
      * @return
      */
     String path();
 
     /**
-     * 路由节点分组可以实现动态加载
      * @return
      */
     String group() default "";
+
+    String name() default "";
 }
