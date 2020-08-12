@@ -42,6 +42,7 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -53,6 +54,8 @@ import javax.tools.Diagnostic;
 import javax.tools.StandardLocation;
 
 import static org.fireking.processorlib.utils.Constans.ACTIVITY;
+import static org.fireking.processorlib.utils.Constans.ANNOTATION_TYPE_AUTOWIRED;
+import static org.fireking.processorlib.utils.Constans.ANNOTATION_TYPE_ROUTE;
 import static org.fireking.processorlib.utils.Constans.FRAGMENT;
 import static org.fireking.processorlib.utils.Constans.FRAGMENT_V4;
 import static org.fireking.processorlib.utils.Constans.IPROVIDER;
@@ -73,6 +76,7 @@ import static org.fireking.processorlib.utils.Constans.VALUE_ENABLE;
 import static org.fireking.processorlib.utils.Constans.WARNING_TIPS;
 
 @AutoService(Processor.class)
+@SupportedAnnotationTypes({ANNOTATION_TYPE_ROUTE, ANNOTATION_TYPE_AUTOWIRED})
 public class RouterProcessor extends AbstractProcessor {
 
     private Types types;
@@ -364,11 +368,6 @@ public class RouterProcessor extends AbstractProcessor {
     @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.latestSupported();
-    }
-
-    @Override
-    public Set<String> getSupportedAnnotationTypes() {
-        return super.getSupportedAnnotationTypes();
     }
 
     @Override
