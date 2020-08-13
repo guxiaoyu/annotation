@@ -312,8 +312,12 @@ public class RouterProcessor extends AbstractProcessor {
                     }
 
                     String mapBody = mapBodyBuilder.toString();
+                    String value =null;
+                    if (!StringUtils.isEmpty(mapBody)){
+                        value= ("new java.util.HashMap<String,Integer>(){{" + mapBodyBuilder.toString()+"}}");
+                    }
                     loadIntoMethodOfGroupBuilder.addStatement(
-                            "atlas.put($S,$T.build($T." + routeMeta.getType()+ ",$T.class,$S,$S, " +(StringUtils.isEmpty(mapBody) ?null:("new java.util.HashMap<String,Integer>(){{" + mapBodyBuilder.toString()+"}}))")),
+                            "atlas.put($S,$T.build($T." + routeMeta.getType()+ ",$T.class,$S,$S, " +value + "))",
                             routeMeta.getPath(),
                             routeMetaCn,
                             routeTypeCn,
