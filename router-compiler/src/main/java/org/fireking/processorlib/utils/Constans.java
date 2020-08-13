@@ -61,7 +61,7 @@ public class Constans {
     public static final String IPROVIDER_GROUP = FACADE_PACKAGE + TEMPLATE_PACKAGE +".IProviderGroup";
     public static final String ITROUTE_ROOT = FACADE_PACKAGE + TEMPLATE_PACKAGE + ".IRouteRoot";
 
-    public static final String IROUTE_GROUP = FACADE_PACKAGE + TEMPLATE_PACKAGE + ".IRouteGroup";
+    public static final String IROUTE_GROUP = FACADE_PACKAGE  + ".IRouteGroup";
 
     public static final String KEY_MODULE_NAME = "AROUTER_MODULE_NAME";
 

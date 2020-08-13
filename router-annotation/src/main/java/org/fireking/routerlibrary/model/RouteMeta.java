@@ -108,4 +108,18 @@ public class RouteMeta {
     public void setInjectConfig(Map<String, Autowired> injectConfig) {
         this.injectConfig = injectConfig;
     }
+
+    @Override
+    public String toString() {
+        return "RouteMeta{" +
+                "type=" + type +
+                ", rawType=" + rawType +
+                ", destination=" + destination +
+                ", path='" + path + '\'' +
+                ", group='" + group + '\'' +
+                ", paramsType=" + paramsType +
+                ", name='" + name + '\'' +
+                ", injectConfig=" + injectConfig +
+                '}';
+    }
 }

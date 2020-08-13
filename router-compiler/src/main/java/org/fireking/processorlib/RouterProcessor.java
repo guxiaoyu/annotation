@@ -160,7 +160,7 @@ public class RouterProcessor extends AbstractProcessor {
             TypeMirror type_FRAGMENT_V4 = elementUtils.getTypeElement(FRAGMENT_V4).asType();
 
 
-            TypeElement type_IRouterGroup = elementUtils.getTypeElement(IROUTE_GROUP);
+//            TypeElement type_IRouterGroup = elementUtils.getTypeElement(IROUTE_GROUP);
             TypeElement type_IProviderGroup = elementUtils.getTypeElement(IPROVIDER_GROUP);
 
             ClassName routeMetaCn = ClassName.get(RouteMeta.class);
@@ -242,19 +242,20 @@ public class RouterProcessor extends AbstractProcessor {
                 String groupName = entry.getKey();
 
                 MethodSpec.Builder loadIntoMethodOfGroupBuilder = MethodSpec.methodBuilder(METHOD_LOAD_INTO)
-                        .addAnnotation(Override.class)
+//                        .addAnnotation(Override.class)
                         .addModifiers(Modifier.PUBLIC)
                         .addParameter(groupParamSpec);
                 List<RouteDoc> routeDocList = new ArrayList<>();
                 Set<RouteMeta> groupData = entry.getValue();
 
                 for (RouteMeta routeMeta:groupData){
+                    logger.error("================"+groupData.size()+"==="+routeMeta.toString());
                     RouteDoc routeDoc = extractDocInfo(routeMeta);
                     ClassName className = ClassName.get((TypeElement) routeMeta.getRawType());
-//                    switch (routeMeta.getType()){
-//                        case PROVIDER:
-//                            List<? extends TypeMirror> interfaces = ((TypeElement) routeMeta.getRawType()).getInterfaces();
-//
+                    switch (routeMeta.getType()){
+                        case PROVIDER:
+                            List<? extends TypeMirror> interfaces = ((TypeElement) routeMeta.getRawType()).getInterfaces();
+
 //                            for (TypeMirror tm:interfaces){
 //                                if (types.isSameType(tm,iProvider)){
 //
@@ -279,11 +280,11 @@ public class RouterProcessor extends AbstractProcessor {
 //                                    );
 //                                }
 //                            }
-//                                break;
-//                            default:
-//                                break;
-//
-//                    }
+                                break;
+                            default:
+                                break;
+
+                    }
 
                     StringBuilder mapBodyBuilder = new StringBuilder();
                     Map<String,Integer> paramsType = routeMeta.getParamsType();
@@ -323,22 +324,22 @@ public class RouterProcessor extends AbstractProcessor {
 
                     routeDoc.setClassName(className.toString());
                     routeDocList.add(routeDoc);
-
+//
                 }
 
-//                String groupFileName = NAME_OF_GROUP + groupName;
-//                JavaFile.builder(
-//                        PACKAGE_OF_GENERATE_FILE,
-//                        TypeSpec.classBuilder(groupFileName)
-//                                .addJavadoc(WARNING_TIPS)
+                String groupFileName = NAME_OF_GROUP + groupName;
+                JavaFile.builder(
+                        PACKAGE_OF_GENERATE_FILE,
+                        TypeSpec.classBuilder(groupFileName)
+                                .addJavadoc(WARNING_TIPS)
 //                                .addSuperinterface(ClassName.get(type_IRouterGroup))
-//                                .addModifiers(Modifier.PUBLIC)
-//                                .addMethod(loadIntoMethodOfGroupBuilder.build())
-//                                .build()
-//
-//                ).build().writeTo(mFiler);
+                                .addModifiers(Modifier.PUBLIC)
+                                .addMethod(loadIntoMethodOfGroupBuilder.build())
+                                .build()
 
-//                rootMap.put(groupName,groupFileName);
+                ).build().writeTo(mFiler);
+
+                rootMap.put(groupName,groupFileName);
                 docSource.put(groupName,routeDocList);
             }
 
@@ -363,12 +364,12 @@ public class RouterProcessor extends AbstractProcessor {
 //                            .addMethod(loadIntoMethodOfProviderBuilder.build())
 //                            .build()
 //            ).build().writeTo(mFiler);
-
+//
 //            String rootFileName = NAME_OF_ROOT + SEPARATOR +moduleName;
 //            JavaFile.builder(PACKAGE_OF_GENERATE_FILE,
 //                    TypeSpec.classBuilder(rootFileName)
 //                            .addJavadoc(WARNING_TIPS)
-//                            .addSuperinterface(ClassName.get(elementUtils.getTypeElement(ITROUTE_ROOT)))
+////                            .addSuperinterface(ClassName.get(elementUtils.getTypeElement(ITROUTE_ROOT)))
 //                            .build()
 //            ).build().writeTo(mFiler);
 
@@ -404,6 +405,8 @@ public class RouterProcessor extends AbstractProcessor {
         if (routeVerify(routeMeta)){
 
             Set<RouteMeta> routeMetas = groupMap.get(routeMeta.getGroup());
+            if (CollectionUtils.isNotEmpty(routeMetas))
+                logger.error("=========="+routeMetas.toString());
             if (CollectionUtils.isEmpty(routeMetas)){
                 Set<RouteMeta> routeMetaSet = new TreeSet<>(new Comparator<RouteMeta>() {
                     @Override

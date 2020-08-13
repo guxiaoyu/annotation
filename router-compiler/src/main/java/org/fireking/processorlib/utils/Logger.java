@@ -25,13 +25,13 @@ public class Logger {
      */
     public void info(CharSequence info) {
         if (StringUtils.isNotEmpty(info)) {
-            msg.printMessage(Diagnostic.Kind.WARNING, PREFIX_OF_LOGGER + info);
+            msg.printMessage(Diagnostic.Kind.WARNING, "=====================" + info);
         }
     }
 
     public void error(CharSequence error) {
         if (StringUtils.isNotEmpty(error)) {
-            msg.printMessage(Diagnostic.Kind.WARNING, PREFIX_OF_LOGGER + "An exception is encountered, [" + error + "]");
+            msg.printMessage(Diagnostic.Kind.WARNING,  "=====================" + error );
         }
     }
 
