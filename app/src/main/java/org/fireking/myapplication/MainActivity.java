@@ -7,17 +7,23 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import org.fireking.routerlibrary.annotation.BindView;
 import org.fireking.routerlibrary.annotation.Router;
 
-@Router(path = "/main/main01")
+//@Router(path = "/main/main01")
 public class MainActivity extends AppCompatActivity {
 
+    @BindView(R.id.tv_button)
     TextView tv_button;
+    @BindView(R.id.tv_button2)
+    TextView tv_button2;
+    @BindView(R.id.tv_button3)
+    TextView tv_button3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tv_button = findViewById(R.id.tv_button);
+//        tv_button = findViewById(R.id.tv_button);
         tv_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
